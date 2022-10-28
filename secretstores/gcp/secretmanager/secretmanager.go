@@ -17,6 +17,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"time"
 
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"google.golang.org/api/iterator"
@@ -128,6 +130,7 @@ func (s *Store) GetSecret(ctx context.Context, req secretstores.GetSecretRequest
 
 // BulkGetSecret retrieves all secrets in the store and returns a map of decrypted string/string values.
 func (s *Store) BulkGetSecret(ctx context.Context, req secretstores.BulkGetSecretRequest) (secretstores.BulkGetSecretResponse, error) {
+	defer timeTrack(time.Now(), "BulkGetSecret")
 	versionID := "latest"
 
 	response := map[string]map[string]string{}
@@ -212,4 +215,9 @@ func (s *Store) Close() error {
 // Features returns the features available in this secret store.
 func (s *Store) Features() []secretstores.Feature {
 	return []secretstores.Feature{} // No Feature supported.
+}
+
+func timeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	log.Printf("%s took %s", name, elapsed)
 }
